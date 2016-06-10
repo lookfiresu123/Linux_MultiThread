@@ -8,6 +8,7 @@
 #include <memory>
 #include <string>
 
+
 class Counter : boost::noncopyable {
 public:
     friend void swap(std::shared_ptr<Counter> a, std::shared_ptr<Counter> b);
@@ -15,7 +16,17 @@ public:
     friend void deadlock2(std::shared_ptr<Counter> a, std::shared_ptr<Counter> b);
 
     // construct function
+    Counter() : value_(0) {  }
     Counter(const std::string &_name) : thread_name(_name), value_(0) { }
+
+    Counter &operator=(const Counter &rhs) {
+        if (this == &rhs)
+            return *this;
+        muduo::MutexLockGuard mylock(mutex_);
+        muduo::MutexLockGuard itslock(rhs.mutex_);
+        value_ = rhs.value_;    // 改成value_ = rhs.value();会死锁，因为rhs.mutex_已经被占用
+        return *this;
+    }
 
     // get the current value
     int64_t value() const {
@@ -30,7 +41,14 @@ public:
         int64_t ret = value_++;
         return ret;
     }
-private:
+
+    // get the current value and sub itself
+    int64_t getAndDecrease() {
+        muduo::MutexLockGuard lock(mutex_);
+        int64_t ret = value_++;
+        return ret;
+    }
+protected:
     std::string thread_name;
     int64_t value_;
     mutable muduo::MutexLock mutex_;
