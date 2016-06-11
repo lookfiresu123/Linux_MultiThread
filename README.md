@@ -9,8 +9,8 @@
 
 ## 第一章
 * Counter：多线程计数器
-  * Counter.h | 计数器类
-  * test.cpp | 测试代码
+  * Counter.h：计数器类
+  * test.cpp：测试代码
 
 * DeakLock：多线程死锁的例子
   * DeakLock.cpp：对计数器类死锁情况的测试用例 
