@@ -20,9 +20,10 @@ public:
     typedef boost::function<void ()> ThreadFunc;
 
     explicit Thread(const ThreadFunc &func, const std::string &name = std::string())
-        : started_(false), joined_(false), pthreadId_(0), tid_(new pid_t(0)), func_(func), name_(name)
+        : started_(false), joined_(false), pthreadId_(0), pid_ptr(new pid_t(0)), func_(func), name_(name)
     {
         func_();
+        *pid_ptr = getpid();
         setDefaultName();
     }
 
@@ -38,6 +39,7 @@ public:
             started_ = false;
             std::cout << "Fail in pthread_create" << std::endl;
         }
+        std::cout << pthreadId_ << std::endl;
     }
 
     int join() {
@@ -48,8 +50,9 @@ public:
     }
 
     bool started() const { return started_; }
-    pid_t tid() const { return *tid_; }
+    pthread_t tid() const { return pthreadId_; }
     const std::string &name() const { return name_; }
+    bool isEqual(const Thread &t) const { return pthread_equal(pthreadId_, t.pthreadId_) != 0; }
 
 private:
     void setDefaultName() {
@@ -60,7 +63,7 @@ private:
     bool started_;
     bool joined_;
     pthread_t pthreadId_;
-    boost::shared_ptr<pid_t> tid_;
+    boost::shared_ptr<pid_t> pid_ptr;
     ThreadFunc func_;
     std::string name_;
     static unsigned int numCreated_;
