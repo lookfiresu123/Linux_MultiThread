@@ -23,3 +23,6 @@
   * nonrecursive_deadlock_test.cpp：对非递归互斥锁递归加锁的测试
 * Condition：条件变量
   * MyBlockQueue.cpp：使用条件变量同步队列
+* Thread：线程
+  * Thread.h：建立一个简单的线程类
+  * test.cpp：测试代码
